@@ -1,0 +1,63 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class StockDetails
+{
+	public int buyDay, sellDay;
+	public double buyValue, sellValue, profit;
+}
+
+public class Program
+{
+	public static void Main()
+	{
+		Double[] stockPricesArray = {10, 9, 8, 6, 5, 0}; //{18.93,20.25,17.05,16.59,21.09,16.22,21.43,27.13,18.62,21.31,23.96,25.52,19.64,23.49,15.28,22.77,23.1,26.58,27.03,23.75,27.39,15.93,17.83,18.82,21.56,25.33,25,19.33,22.08,5.03};
+		if (stockPricesArray.Length > 1)
+		{
+			FindBestAlgoToBuySellStock(stockPricesArray, stockPricesArray.Length);
+		}
+	}
+
+	
+	//To calculate the best day to buy and sell stock in a month based on historic data
+	static void FindBestAlgoToBuySellStock(Double[] stockPricesArray, int inttotalstocks)
+	{
+		List<StockDetails> stockDetailsList = new List<StockDetails>();
+		int i = 0;
+		while (i < inttotalstocks - 1)
+		{
+			if (i == inttotalstocks - 1)
+				break; //loop through all the values
+			StockDetails e = new StockDetails();
+			e.buyDay = i + 1;
+			e.buyValue = stockPricesArray[i];
+			e.sellValue = stockPricesArray[i];
+			for (int j = i; j < inttotalstocks; j++)
+			{
+				if (stockPricesArray[j] > e.sellValue)
+				{
+					e.sellValue = stockPricesArray[j];
+					e.sellDay = j + 1;
+				}
+			}
+
+			e.profit = e.sellValue - e.buyValue;
+			stockDetailsList.Add(e);
+			i++;
+		}
+
+		var maxprofit = stockDetailsList.Max(x => x.profit);
+		var stock = stockDetailsList.First(x => x.profit == maxprofit);
+		if (maxprofit > 0)
+		{
+			Console.WriteLine("Buy on day: " + stock.buyDay + '(' + stock.buyValue + ')' + " " + "Sell on day : " + stock.sellDay + '(' + stock.sellValue + ')' + " Profit : " + stock.profit);
+		}
+		else
+		{
+			Console.WriteLine("No favourable day exist in this month to make profit");
+		}
+
+		return;
+	}
+}

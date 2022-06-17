@@ -1,0 +1,111 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class StockDetails
+{
+	public int buyDay, sellDay;
+	public double buyValue, sellValue, profit;
+}
+
+public class Program
+{
+	public static void Main()
+	{
+		Console.WriteLine("Hello World");
+		Double[] stockPricesArray = {10, 9, 8, 6, 5, 0}; //{18.93,20.25,17.05,16.59,21.09,16.22,21.43,27.13,18.62,21.31,23.96,25.52,19.64,23.49,15.28,22.77,23.1,26.58,27.03,23.75,27.39,15.93,17.83,18.82,21.56,25.33,25,19.33,22.08,5.03};
+		if (stockPricesArray.Length > 1)
+		{
+			FindStocks(stockPricesArray);
+			FindStocksBySimpleLoop(stockPricesArray);
+			FindBestAlgoToBuySellStock(stockPricesArray, stockPricesArray.Length);
+		}
+	}
+
+	// it only provides the diffrence bet lowest and highest value
+	// fails if highest is coming first in the list
+	// it is fast but impractical
+	public static void FindStocks(Double[] stockPricesArray)
+	{
+		var stockPricesSortedArray = (Double[])stockPricesArray.Clone();
+		Array.Sort(stockPricesSortedArray);
+		Console.WriteLine("By Array sorting");
+		int bestdaytobuy = Array.FindIndex(stockPricesArray, value => value == stockPricesSortedArray[0]) + 1;
+		Console.WriteLine("Best Day to Buy " + bestdaytobuy + '(' + stockPricesSortedArray[0] + ')');
+		int bestdaytosell = Array.FindIndex(stockPricesArray, value => value == stockPricesSortedArray[stockPricesSortedArray.Length - 1]) + 1;
+		Console.WriteLine("Best Day to sell " + bestdaytosell + '(' + stockPricesSortedArray[stockPricesSortedArray.Length - 1] + ')');
+	}
+
+	// will work even if the highest values is given on the first
+	// calculates the smallest value and find the best day to sell it
+	// fails to prpvide the best days
+	public static void FindStocksBySimpleLoop(Double[] stockPricesArray)
+	{
+		int intLowestPos = 1, intHighestPos = 1;
+		Double dblLowestStock, dblHighestStock;
+		dblLowestStock = stockPricesArray[0];
+		Console.WriteLine("By simple Loop");
+		for (int i = 0; i < stockPricesArray.Length; i++)
+		{
+			if (dblLowestStock > stockPricesArray[i])
+			{
+				dblLowestStock = stockPricesArray[i];
+				intLowestPos = i + 1;
+			}
+		}
+
+		dblHighestStock = dblLowestStock;
+		for (int i = intLowestPos - 1; i < stockPricesArray.Length; i++)
+		{
+			if (dblHighestStock < stockPricesArray[i])
+			{
+				dblHighestStock = stockPricesArray[i];
+				intHighestPos = i + 1;
+			}
+		}
+
+		Console.WriteLine("Best Day to Buy " + intLowestPos + '(' + dblLowestStock + ')');
+		Console.WriteLine("Best Day to sell " + intHighestPos + '(' + dblHighestStock + ')');
+	}
+
+	//To caclculate the best day to buy and sell stock in a day
+	static void FindBestAlgoToBuySellStock(Double[] stockPricesArray, int inttotalstocks)
+	{
+		List<StockDetails> stockDetailsList = new List<StockDetails>();
+		int i = 0;
+		while (i < inttotalstocks - 1)
+		{
+			if (i == inttotalstocks - 1)
+				break;
+			StockDetails e = new StockDetails();
+			e.buyDay = i + 1;
+			e.buyValue = stockPricesArray[i];
+			e.sellValue = stockPricesArray[i];
+			for (int j = i; j < inttotalstocks; j++)
+			{
+				if (stockPricesArray[j] > e.sellValue)
+				{
+					e.sellValue = stockPricesArray[j];
+					e.sellDay = j + 1;
+				}
+			}
+
+			e.profit = e.sellValue - e.buyValue;
+			stockDetailsList.Add(e);
+			i++;
+		}
+
+		var maxprofit = stockDetailsList.Max(x => x.profit);
+		var stock = stockDetailsList.First(x => x.profit == maxprofit);
+		if (maxprofit > 0)
+		{
+			Console.WriteLine("Buy on day: " + stock.buyDay + '(' + stock.buyValue + ')' + " " + "Sell on day : " + stock.sellDay + '(' + stock.sellValue + ')' + " Profit : " + stock.profit);
+		}
+		else
+		{
+			Console.WriteLine("No favourable day exist in this month to make profit");
+		}
+
+		return;
+	}
+}
